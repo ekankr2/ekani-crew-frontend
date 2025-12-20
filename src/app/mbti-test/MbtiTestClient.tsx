@@ -20,6 +20,7 @@ export default function MbtiTestClient() {
   const [userId, setUserId] = useState<string>('');
   const [turn, setTurn] = useState(1);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 메시지가 추가될 때마다 자동으로 스크롤
@@ -36,6 +37,8 @@ export default function MbtiTestClient() {
         }
       } catch {
         // 로그인 상태가 아니면 무시
+      } finally {
+        setIsCheckingAuth(false);
       }
     };
     checkUser();
@@ -123,7 +126,7 @@ export default function MbtiTestClient() {
             <br />
             자연스러운 질문에 솔직하게 답변해주시면 됩니다!
           </p>
-          {!userId && (
+          {!isCheckingAuth && !userId && (
             <div className="mb-4 p-4 bg-yellow-100 text-yellow-700 rounded-lg">
               로그인 후 테스트를 진행할 수 있습니다.
               <button
@@ -141,10 +144,10 @@ export default function MbtiTestClient() {
           )}
           <button
             onClick={handleStart}
-            disabled={isLoading || !userId}
+            disabled={isLoading || isCheckingAuth || !userId}
             className="cursor-pointer px-8 py-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? '시작 중...' : '테스트 시작하기'}
+            {isLoading || isCheckingAuth ? '로딩 중...' : '테스트 시작하기'}
           </button>
         </div>
       </div>

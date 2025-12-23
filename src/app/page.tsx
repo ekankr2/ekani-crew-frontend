@@ -61,7 +61,7 @@ export default function Home() {
       {/* 서비스 소개 */}
       <section className="bg-white rounded-3xl p-8 shadow-sm">
         <h2 className="text-xl font-bold text-center text-gray-700 mb-2">
-          Nunchi.ai가 뭐야?
+          눈치코치가 뭐야?
         </h2>
         <p className="text-center text-gray-500 text-sm mb-8">
           관계에서 뭐라고 말해야 할지 모르겠을 때,<br />
@@ -86,7 +86,7 @@ export default function Home() {
               <h3 className="font-bold text-purple-600 mb-2">바로 쓸 수 있는 메시지</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
                 "INTJ는 논리적이에요~" 같은 뻔한 이론 설명은 이제 지겨우시죠?
-                Nunchi.ai는 복사해서 바로 보낼 수 있는 실제 메시지를 만들어줘요.
+                눈치코치는 복사해서 바로 보낼 수 있는 실제 메시지를 만들어줘요.
                 공손한 버전, 캐주얼한 버전, 간결한 버전 3가지로 제공되니까
                 상황에 맞게 골라서 쓰시면 돼요. 각 버전마다 왜 이 표현이 효과적인지 해설도 함께!
               </p>

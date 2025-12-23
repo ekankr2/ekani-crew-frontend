@@ -22,46 +22,46 @@ export default function Home() {
       {/* 서비스 카드 */}
       <section className="grid md:grid-cols-3 gap-6">
         {/* MBTI 검사 - 메인 카드 */}
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-8 shadow-sm hover:shadow-md transition border-2 border-indigo-200 relative overflow-hidden">
+        <Link href="/mbti-test" className="block bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-8 shadow-sm hover:shadow-lg hover:scale-[1.02] transition border-2 border-indigo-200 relative overflow-hidden cursor-pointer">
           <div className="absolute top-3 right-3 px-2 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full">
             NEW
           </div>
           <div className="text-4xl mb-4">🧠</div>
           <h2 className="text-xl font-bold text-indigo-600 mb-2">MBTI 검사</h2>
           <p className="text-gray-600 mb-2">
-            AI와의 자연스러운 대화로 나의 MBTI를 정확하게 알아보세요.
+            기존에 알던 것과는 다른 방식으로 나의 MBTI를 알아보세요.
           </p>
           <div className="text-xs text-indigo-600 bg-indigo-100 rounded-lg p-2 mb-4">
-            <span className="font-semibold">다른 검사와 다른 점:</span> 단순 선택형이 아닌, AI가 맥락을 파악해 24개의 맞춤 질문을 생성합니다
+            <span className="font-semibold">차별점:</span> 객관식이 아닌 채팅 형식으로, 내 답변에 따라 맞춤 질문을 생성합니다
           </div>
-          <Link href="/mbti-test" className="text-indigo-500 font-medium hover:underline">
+          <span className="text-indigo-500 font-medium">
             무료 검사하기 →
-          </Link>
-        </div>
+          </span>
+        </Link>
 
-        <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition">
+        <Link href="/consult" className="block bg-white rounded-3xl p-8 shadow-sm hover:shadow-lg hover:scale-[1.02] transition cursor-pointer">
           <div className="text-4xl mb-4">💬</div>
           <h2 className="text-xl font-bold text-pink-500 mb-2">MBTI 상담</h2>
           <p className="text-gray-500 mb-4">
             나의 MBTI에 맞는 맞춤형 관계 조언을 받아보세요.
             5턴의 대화로 깊이 있는 분석을 제공합니다.
           </p>
-          <Link href="/consult" className="text-pink-400 font-medium hover:underline">
+          <span className="text-pink-400 font-medium">
             상담받기 →
-          </Link>
-        </div>
+          </span>
+        </Link>
 
-        <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-md transition">
+        <Link href="/convert" className="block bg-white rounded-3xl p-8 shadow-sm hover:shadow-lg hover:scale-[1.02] transition cursor-pointer">
           <div className="text-4xl mb-4">✨</div>
           <h2 className="text-xl font-bold text-purple-500 mb-2">메시지 변환</h2>
           <p className="text-gray-500 mb-4">
             상대방의 MBTI에 맞게 메시지를 변환해드려요.
             공손한, 캐주얼한, 간결한 3가지 버전으로!
           </p>
-          <Link href="/convert" className="text-purple-400 font-medium hover:underline">
+          <span className="text-purple-400 font-medium">
             변환하기 →
-          </Link>
-        </div>
+          </span>
+        </Link>
       </section>
 
       {/* 서비스 소개 */}
@@ -70,10 +70,22 @@ export default function Home() {
           눈치코치가 뭐야?
         </h2>
         <p className="text-center text-gray-500 text-sm mb-8">
-          관계에서 뭐라고 말해야 할지 모르겠을 때,<br />
-          AI가 상대방의 MBTI에 맞는 소통법을 알려줘요
+          MBTI 검사부터 상담, 메시지 변환, 매칭까지<br />
+          AI가 당신의 소통을 도와드려요
         </p>
         <div className="space-y-4">
+          <div className="flex items-start gap-4 p-5 rounded-2xl bg-indigo-50">
+            <span className="text-3xl">🧠</span>
+            <div>
+              <h3 className="font-bold text-indigo-600 mb-2">채팅형 MBTI 검사</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                "동의/비동의" 클릭하는 지루한 검사는 이제 그만!
+                눈치코치의 MBTI 검사는 채팅으로 진행돼요.
+                내 답변에 따라 AI가 맞춤 질문을 생성하니까 더 정확한 결과를 얻을 수 있어요.
+                24개의 질문이 끝나면 각 차원별 비율까지 상세하게 분석해드려요.
+              </p>
+            </div>
+          </div>
           <div className="flex items-start gap-4 p-5 rounded-2xl bg-pink-50">
             <span className="text-3xl">🗣️</span>
             <div>
@@ -98,15 +110,14 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-4 p-5 rounded-2xl bg-pink-50">
-            <span className="text-3xl">🎯</span>
+          <div className="flex items-start gap-4 p-5 rounded-2xl bg-rose-50">
+            <span className="text-3xl">💕</span>
             <div>
-              <h3 className="font-bold text-pink-600 mb-2">모든 관계에 적용</h3>
+              <h3 className="font-bold text-rose-600 mb-2">MBTI 매칭</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                연애 상담만 되는 거 아니에요! 까다로운 직장 상사, 말이 안 통하는 동료,
-                오해가 생긴 친구, 갈등 중인 가족까지 모든 인간관계에서 활용할 수 있어요.
-                상대방의 MBTI 특성을 고려한 맞춤 소통법을 알려드리니까
-                어떤 관계든 더 스마트하게 대화할 수 있어요.
+                같은 MBTI를 가진 사람들과 익명으로 대화해보세요!
+                나와 같은 유형의 사람들은 어떤 생각을 하는지, 어떤 고민이 있는지 공유할 수 있어요.
+                매칭이 되면 1:1 채팅방이 생성되고, 부담 없이 대화를 나눌 수 있어요.
               </p>
             </div>
           </div>

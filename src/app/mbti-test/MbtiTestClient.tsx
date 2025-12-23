@@ -156,9 +156,9 @@ export default function MbtiTestClient() {
           <div className="text-6xl mb-6">🧠</div>
           <h1 className="text-2xl font-bold text-purple-500 mb-4">AI MBTI 검사</h1>
           <p className="text-gray-500 mb-4">
-            AI와의 자연스러운 대화를 통해 당신의 MBTI를 알아보세요.
+            16personalities와는 다른 방식의 MBTI 검사입니다.
             <br />
-            단순 선택형이 아닌, 맞춤형 질문으로 더 정확한 결과를 제공합니다!
+            O/X가 아닌 채팅 형식으로, 내 답변에 따라 맞춤 질문이 생성됩니다!
           </p>
           <div className="bg-purple-50 rounded-2xl p-4 mb-8">
             <p className="text-purple-700 text-sm">

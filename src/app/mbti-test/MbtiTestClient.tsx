@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { startMbtiTest, checkAuthStatus, generateAIQuestion, ChatMessageDTO, MbtiTestType } from '@/lib/api';
+import { startMbtiTest, checkAuthStatus, answerMbtiQuestion } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -10,8 +10,6 @@ interface Message {
 }
 
 const TOTAL_QUESTIONS = 24;
-const HUMAN_QUESTIONS = 12; // 1-12번: 사람이 만든 질문
-// 13-24번: AI가 만든 질문
 
 export default function MbtiTestClient() {
   const router = useRouter();
@@ -47,12 +45,12 @@ export default function MbtiTestClient() {
     checkUser();
   }, []);
 
-  const handleStart = async (testType: MbtiTestType = 'ai') => {
+  const handleStart = async () => {
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await startMbtiTest(testType);
+      const response = await startMbtiTest('human');
       setSessionId(response.session.id);
       setMessages([{ role: 'assistant', content: response.first_question.content }]);
       setQuestionNumber(1);
@@ -73,34 +71,18 @@ export default function MbtiTestClient() {
 
     const userAnswer = input.trim();
     setInput('');
-    const newMessages: Message[] = [...messages, { role: 'user', content: userAnswer }];
-    setMessages(newMessages);
+    setMessages(prev => [...prev, { role: 'user', content: userAnswer }]);
     setIsLoading(true);
     setError('');
 
     try {
-      // 대화 기록을 API 형식으로 변환
-      const history: ChatMessageDTO[] = newMessages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+      // 통합 답변 엔드포인트 호출
+      const response = await answerMbtiQuestion(sessionId, userAnswer);
 
-      // 현재 단계 결정 (1-12: human, 13-24: ai)
-      const currentPhase = questionNumber <= HUMAN_QUESTIONS ? 'human' : 'ai';
+      setQuestionNumber(response.question_number);
 
-      // AI 질문 생성 요청 (백엔드에서 단계에 맞는 질문 반환)
-      // TODO: 백엔드에서 사람 질문/AI 질문을 구분해서 반환하도록 수정 필요
-      const response = await generateAIQuestion(sessionId, {
-        turn: questionNumber,
-        history: history,
-        question_mode: 'normal',
-      });
-
-      const nextQuestionNumber = questionNumber + 1;
-      setQuestionNumber(nextQuestionNumber);
-
-      // 24개 질문 완료 체크
-      if (nextQuestionNumber > TOTAL_QUESTIONS) {
+      if (response.is_completed) {
+        // 테스트 완료
         setIsCompleted(true);
         setMessages(prev => [
           ...prev,
@@ -118,17 +100,12 @@ export default function MbtiTestClient() {
             }
           ]);
         }, 2000);
-      } else {
-        // 질문이 있으면 첫 번째 질문 표시
-        if (response.questions && response.questions.length > 0) {
-          const nextQuestion = response.questions[0].text;
-          setMessages(prev => [...prev, { role: 'assistant', content: nextQuestion }]);
-        }
+      } else if (response.next_question) {
+        // 다음 질문 표시
+        setMessages(prev => [...prev, { role: 'assistant', content: response.next_question!.content }]);
       }
     } catch (err: any) {
-      setError(err.message || '질문 생성 중 오류가 발생했습니다.');
-      // 에러 발생 시 질문 번호 복원
-      setQuestionNumber(prev => prev);
+      setError(err.message || '질문 처리 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -137,9 +114,6 @@ export default function MbtiTestClient() {
   // 현재 진행 단계 표시
   const getPhaseText = () => {
     if (isCompleted) return '테스트 완료!';
-    if (questionNumber <= HUMAN_QUESTIONS) {
-      return `진행 중: ${questionNumber}/${TOTAL_QUESTIONS}`;
-    }
     return `진행 중: ${questionNumber}/${TOTAL_QUESTIONS}`;
   };
 
@@ -181,7 +155,7 @@ export default function MbtiTestClient() {
             </div>
           )}
           <button
-            onClick={() => handleStart('ai')}
+            onClick={handleStart}
             disabled={isLoading || isCheckingAuth || !isLoggedIn}
             className="cursor-pointer px-8 py-4 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -258,7 +232,7 @@ export default function MbtiTestClient() {
                 {mbtiResult}
               </p>
               <button
-                onClick={() => router.push('/matching')}
+                onClick={() => router.push('/chat')}
                 className="mt-4 px-6 py-3 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full font-medium hover:opacity-90 transition"
               >
                 MBTI로 매칭하기

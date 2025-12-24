@@ -266,43 +266,35 @@ export interface StartMbtiTestResponse {
   first_question: MbtiMessage;
 }
 
-export async function startMbtiTest(testType: MbtiTestType = 'ai'): Promise<StartMbtiTestResponse> {
+export async function startMbtiTest(testType: MbtiTestType = 'human'): Promise<StartMbtiTestResponse> {
   return apiFetch<StartMbtiTestResponse>(`/mbti-test/start?test_type=${testType}`, {
     method: 'POST',
   });
 }
 
 /**
- * MBTI 테스트 AI 질문 생성
+ * MBTI 테스트 질문 답변 (통합 엔드포인트)
+ * - 질문 1-12: 저장된 인간 질문 반환
+ * - 질문 13-24: AI 생성 질문 반환
  */
-export interface ChatMessageDTO {
-  role: 'user' | 'assistant' | 'system';
+export interface AnswerQuestionRequest {
   content: string;
 }
 
-export interface GenerateAIQuestionRequest {
-  turn: number; // 1~5
-  history: ChatMessageDTO[];
-  question_mode: 'normal' | 'surprise';
+export interface AnswerQuestionResponse {
+  question_number: number;
+  total_questions: number;
+  next_question: MbtiMessage | null;
+  is_completed: boolean;
 }
 
-export interface AIQuestionDTO {
-  text: string;
-  target_dimensions: string[];
-}
-
-export interface GenerateAIQuestionResponse {
-  turn: number;
-  questions: AIQuestionDTO[];
-}
-
-export async function generateAIQuestion(
+export async function answerMbtiQuestion(
   sessionId: string,
-  request: GenerateAIQuestionRequest
-): Promise<GenerateAIQuestionResponse> {
-  return apiFetch<GenerateAIQuestionResponse>(`/mbti-test/${sessionId}/ai-question`, {
+  answer: string
+): Promise<AnswerQuestionResponse> {
+  return apiFetch<AnswerQuestionResponse>(`/mbti-test/${sessionId}/answer`, {
     method: 'POST',
-    body: JSON.stringify(request),
+    body: JSON.stringify({ content: answer }),
   });
 }
 

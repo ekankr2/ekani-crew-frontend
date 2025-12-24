@@ -134,16 +134,24 @@ export default function ChatListClient() {
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const handleStartMatching = async () => {
-    if (!user?.id || !profile?.mbti) return;
+    console.log('[매칭] 시작 - user:', user, 'profile:', profile);
+
+    if (!user?.id || !profile?.mbti) {
+      console.log('[매칭] early return - user.id:', user?.id, 'profile.mbti:', profile?.mbti);
+      return;
+    }
 
     setIsMatchingLoading(true);
     setMatchingError(null);
     setMatchingStatus('waiting');
+    matchingStatusRef.current = 'waiting'; // ref도 즉시 업데이트
 
     try {
       for (const step of MATCHING_SCENARIOS) {
+        console.log('[매칭] step:', step.level);
         // 매칭 취소 확인
         if (matchingStatusRef.current === 'idle') {
+          console.log('[매칭] 취소됨 - 루프 종료');
           return;
         }
 

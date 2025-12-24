@@ -1,5 +1,5 @@
-import MatchingClient from './MatchingClient';
+import { redirect } from 'next/navigation';
 
 export default function MatchingPage() {
-  return <MatchingClient />;
+  redirect('/chat');
 }

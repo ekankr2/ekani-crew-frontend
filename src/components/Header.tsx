@@ -46,14 +46,8 @@ export default function Header() {
               MBTI검사
             </Link>
             <Link
-              href="/matching"
-              className="px-4 py-2 rounded-full bg-rose-100 text-rose-600 hover:bg-rose-200 text-sm font-medium transition"
-            >
-              매칭
-            </Link>
-            <Link
               href="/chat"
-              className="px-4 py-2 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 text-sm font-medium transition"
+              className="px-4 py-2 rounded-full bg-rose-100 text-rose-600 hover:bg-rose-200 text-sm font-medium transition"
             >
               채팅
             </Link>

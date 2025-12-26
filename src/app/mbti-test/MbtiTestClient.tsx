@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { startMbtiTest, checkAuthStatus, answerMbtiQuestion } from '@/lib/api';
+import { startMbtiTest, checkAuthStatus, answerMbtiQuestion, getMbtiResult } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -90,17 +90,25 @@ export default function MbtiTestClient() {
           { role: 'assistant', content: '테스트가 완료되었습니다! 결과를 분석 중입니다...' }
         ]);
 
-        // TODO: 결과 API 호출하여 MBTI 결과 받아오기
-        setTimeout(() => {
-          setMbtiResult('INFP'); // 더미 결과
+        // 결과 API 호출
+        try {
+          const resultResponse = await getMbtiResult(sessionId);
+          setMbtiResult(resultResponse.mbti);
           setMessages(prev => [
             ...prev,
             {
               role: 'assistant',
-              content: '당신의 MBTI는 INFP입니다!'
+              content: `당신의 MBTI는 ${resultResponse.mbti}입니다! 🎉`
             }
           ]);
-        }, 2000);
+        } catch {
+          // 결과 조회 실패 시 fallback
+          setMbtiResult('????');
+          setMessages(prev => [
+            ...prev,
+            { role: 'assistant', content: '결과 조회에 실패했습니다. 다시 시도해주세요.' }
+          ]);
+        }
       } else if (response.next_question) {
         // 다음 질문 표시
         setMessages(prev => [...prev, { role: 'assistant', content: response.next_question!.content }]);

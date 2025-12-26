@@ -281,20 +281,49 @@ export interface AnswerQuestionRequest {
   content: string;
 }
 
+export interface MbtiAnalysisResult {
+  mbti: string;
+  scores: Record<string, number>;
+  confidence: Record<string, number>;
+}
+
+export interface PartialMbtiAnalysisResult {
+  mbti: string;
+  scores: Record<string, number>;
+  completed_dimensions: string[];
+}
+
 export interface AnswerQuestionResponse {
   question_number: number;
   total_questions: number;
   next_question: MbtiMessage | null;
   is_completed: boolean;
+  analysis_result?: MbtiAnalysisResult | null;
+  partial_analysis_result?: PartialMbtiAnalysisResult | null;
 }
 
 export async function answerMbtiQuestion(
   sessionId: string,
   answer: string
 ): Promise<AnswerQuestionResponse> {
-  return apiFetch<AnswerQuestionResponse>(`/mbti-test/${sessionId}/answer`, {
+  return apiFetch<AnswerQuestionResponse>(`/mbti-test/${sessionId}/chat`, {
     method: 'POST',
     body: JSON.stringify({ content: answer }),
+  });
+}
+
+/**
+ * MBTI 테스트 결과 조회
+ */
+export interface MbtiResultResponse {
+  mbti: string;
+  dimension_scores: Record<string, number>;
+  timestamp: string;
+}
+
+export async function getMbtiResult(sessionId: string): Promise<MbtiResultResponse> {
+  return apiFetch<MbtiResultResponse>(`/mbti-test/result/${sessionId}`, {
+    method: 'GET',
   });
 }
 

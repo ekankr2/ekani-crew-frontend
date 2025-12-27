@@ -64,6 +64,18 @@ export default function ChatListClient() {
     matchingStatusRef.current = matchingStatus;
   }, [matchingStatus]);
 
+  // 페이지 이탈 시 매칭 취소 (cleanup)
+  useEffect(() => {
+    return () => {
+      // 매칭 대기 중일 때만 취소
+      if (matchingStatusRef.current === 'waiting' && user?.id && profile?.mbti) {
+        cancelMatch({ user_id: user.id, mbti: profile.mbti }).catch(() => {
+          // 취소 실패는 무시
+        });
+      }
+    };
+  }, [user?.id, profile?.mbti]);
+
   // 로그인 체크
   useEffect(() => {
     if (!loading && !isLoggedIn) {
@@ -106,29 +118,20 @@ export default function ChatListClient() {
   // 초기 채팅방 목록 로드
   useEffect(() => {
     if (isLoggedIn && user?.id) {
-      loadChatRooms();
+      void loadChatRooms();
     }
   }, [isLoggedIn, user?.id, loadChatRooms]);
 
-  // 매칭 레벨별 시나리오: [레벨, 대기시간(초)]
-  const MATCHING_SCENARIOS = [
-    { level: 1, wait: 3 },  // 1단계: 정확히 같은 MBTI
-    { level: 1, wait: 3 },  // 1단계 한 번 더
-    { level: 2, wait: 5 },  // 2단계: 비슷한 MBTI
-    { level: 3, wait: 5 },  // 3단계: 더 넓은 범위
-    { level: 4, wait: 0 },  // 4단계: 마지막 시도
+  // 매칭 레벨별 시나리오 (순환)
+  const MATCHING_LEVELS = [
+    { level: 1, message: '천생연분을 찾는 중...' },
+    { level: 2, message: '잘 맞는 상대를 찾는 중...' },
+    { level: 3, message: '새로운 인연을 찾는 중...' },
+    { level: 4, message: '인연을 찾는 중...' },
   ];
 
-  // 매칭 레벨별 상태 메시지
-  const getMatchingMessage = (level: number): string => {
-    switch (level) {
-      case 1: return '천생연분을 찾는 중...';
-      case 2: return '잘 맞는 상대를 찾는 중...';
-      case 3: return '새로운 인연을 찾는 중...';
-      case 4: return '마지막으로 찾아보는 중...';
-      default: return '매칭 중...';
-    }
-  };
+  // 매칭 폴링 간격 (초)
+  const MATCHING_INTERVAL = 3;
 
   // sleep 함수
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -144,25 +147,24 @@ export default function ChatListClient() {
     setIsMatchingLoading(true);
     setMatchingError(null);
     setMatchingStatus('waiting');
-    matchingStatusRef.current = 'waiting'; // ref도 즉시 업데이트
+    matchingStatusRef.current = 'waiting';
+
+    let levelIndex = 0;
 
     try {
-      for (const step of MATCHING_SCENARIOS) {
-        console.log('[매칭] step:', step.level);
-        // 매칭 취소 확인 (취소 버튼 누르면 idle로 변경됨)
-        if (matchingStatusRef.current !== 'waiting') {
-          console.log('[매칭] 취소됨 - 루프 종료');
-          return;
-        }
+      // 유저가 취소할 때까지 계속 매칭 시도
+      while (matchingStatusRef.current === 'waiting') {
+        const currentLevel = MATCHING_LEVELS[levelIndex];
+        console.log('[매칭] level:', currentLevel.level);
 
         // UI 업데이트
-        setMatchingMessage(getMatchingMessage(step.level));
+        setMatchingMessage(currentLevel.message);
 
-        // 서버에 매칭 요청 (level 포함)
+        // 서버에 매칭 요청
         const response: MatchRequestResponse = await requestMatch({
           user_id: user.id,
           mbti: profile.mbti,
-          level: step.level,
+          level: currentLevel.level,
         });
 
         // 대기 인원 업데이트
@@ -173,24 +175,30 @@ export default function ChatListClient() {
           setMatchingStatus('matched');
           setMatchedRoomId(response.roomId || null);
           setMatchedMbti(response.partner?.mbti || '???');
-          loadChatRooms();
+          void loadChatRooms();
           return;
         }
 
-        // 다음 단계 전 대기
-        if (step.wait > 0) {
-          await sleep(step.wait * 1000);
-        }
+        // 다음 레벨로 순환 (1 -> 2 -> 3 -> 4 -> 1 -> ...)
+        levelIndex = (levelIndex + 1) % MATCHING_LEVELS.length;
+
+        // 다음 요청 전 대기
+        await sleep(MATCHING_INTERVAL * 1000);
       }
 
-      // 모든 단계 실패
-      setMatchingError('현재 매칭 가능한 상대가 없습니다. 잠시 후 다시 시도해주세요.');
-      setMatchingStatus('idle');
+      console.log('[매칭] 취소됨 - 루프 종료');
 
     } catch (err) {
       console.error('매칭 요청 실패:', err);
       setMatchingError('매칭 요청에 실패했습니다. 다시 시도해주세요.');
       setMatchingStatus('idle');
+
+      // 에러 발생 시 대기열 정리
+      try {
+        await cancelMatch({ user_id: user.id, mbti: profile.mbti });
+      } catch {
+        // 취소 실패는 무시
+      }
     } finally {
       setIsMatchingLoading(false);
     }

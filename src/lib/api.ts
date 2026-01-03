@@ -389,6 +389,72 @@ export async function getChatHistory(roomId: string): Promise<ChatHistoryRespons
 }
 
 /**
+ * 채팅방 읽음 처리 응답
+ */
+export interface MarkRoomAsReadResponse {
+  status: string;
+  message: string;
+}
+
+/**
+ * 채팅방 읽음 처리
+ */
+export async function markRoomAsRead(roomId: string, userId: string): Promise<MarkRoomAsReadResponse> {
+  return apiFetch<MarkRoomAsReadResponse>(`/chat/${roomId}/read?user_id=${userId}`, {
+    method: 'POST',
+  });
+}
+
+/**
+ * 채팅방 나가기 응답
+ */
+export interface LeaveChatRoomResponse {
+  status: string;
+  message: string;
+}
+
+/**
+ * 채팅방 나가기
+ */
+export async function leaveChatRoom(roomId: string, userId: string): Promise<LeaveChatRoomResponse> {
+  return apiFetch<LeaveChatRoomResponse>(`/chat/${roomId}/leave?user_id=${userId}`, {
+    method: 'POST',
+  });
+}
+
+/**
+ * 신고 사유 타입
+ */
+export type ReportReason = 'ABUSE' | 'HARASSMENT' | 'SPAM' | 'OTHER';
+
+/**
+ * 메시지 신고 요청
+ */
+export interface ReportMessageRequest {
+  reporter_id: string;
+  reasons: ReportReason[];
+}
+
+/**
+ * 메시지 신고 응답
+ */
+export interface ReportMessageResponse {
+  report_id: string;
+  status: string;
+  message: string;
+}
+
+/**
+ * 메시지 신고
+ */
+export async function reportMessage(messageId: string, data: ReportMessageRequest): Promise<ReportMessageResponse> {
+  return apiFetch<ReportMessageResponse>(`/chat/messages/${messageId}/report`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
  * 채팅 WebSocket URL 생성
  */
 export function getChatWebSocketUrl(roomId: string): string {

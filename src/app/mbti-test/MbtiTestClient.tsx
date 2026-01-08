@@ -112,29 +112,79 @@ export default function MbtiTestClient() {
     setIsLoading(true);
     setError('');
 
+    console.log('\n========== RESUME FLOW START ==========');
+
     try {
+      console.log('[FRONTEND] Calling resumeMbtiTest API...');
       const response = await resumeMbtiTest();
+
+      console.log('[FRONTEND] ===== RAW API RESPONSE =====');
+      console.log(JSON.stringify(response, null, 2));
+      console.log('[FRONTEND] ===========================');
+
+      console.log('[FRONTEND] Resume response received:');
+      console.log('  - Status:', response.status);
+      console.log('  - Session ID:', response.session?.id);
+      console.log('  - Session turns:', response.session?.turns?.length || 0);
+      console.log('  - Messages field exists:', 'messages' in response);
+      console.log('  - Messages count:', response.messages?.length || 0);
+      console.log('  - Messages data:', response.messages);
+      console.log('  - Next question:', response.next_question?.content);
+
       setSessionId(response.session.id);
-      
-      // 기존 턴들을 messages로 복원
-      const restoredMessages: Message[] = [];
-      if (response.session.turns) {
+
+      // 백엔드에서 받은 messages 사용 (이전 대화 내용)
+      let restoredMessages: Message[] = [];
+
+      // messages 필드가 있는지 확인
+      if (response.messages && Array.isArray(response.messages)) {
+        console.log('[FRONTEND] Using messages field from API');
+        restoredMessages = response.messages.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content || '',
+        }));
+      }
+      // messages 필드가 없으면 session.turns에서 변환
+      else if (response.session?.turns && Array.isArray(response.session.turns)) {
+        console.log('[FRONTEND] Converting from session.turns (fallback)');
         response.session.turns.forEach((turn: any) => {
           restoredMessages.push({ role: 'assistant', content: turn.question });
           restoredMessages.push({ role: 'user', content: turn.answer });
         });
+      } else {
+        console.warn('[FRONTEND] No messages or turns found in response!');
       }
-      
+
+      console.log('[FRONTEND] Restored messages count:', restoredMessages.length);
+
+      // 각 메시지 상세 출력
+      restoredMessages.forEach((msg, i) => {
+        console.log(`[FRONTEND] Message ${i}:`, {
+          role: msg.role,
+          content: msg.content,
+          contentLength: msg.content?.length || 0,
+          contentType: typeof msg.content,
+        });
+      });
+
       // 다음 질문 추가
-      if (response.next_question) {
+      if (response.next_question && response.next_question.content) {
         restoredMessages.push({ role: 'assistant', content: response.next_question.content });
+        console.log('[FRONTEND] Added next_question, total messages now:', restoredMessages.length);
       }
-      
+
+      console.log('[FRONTEND] Final messages array:', restoredMessages);
+      console.log('[FRONTEND] Setting messages state...');
+
       setMessages(restoredMessages);
-      setQuestionNumber(response.session.current_question_index || restoredMessages.length / 2);
+      setQuestionNumber(response.session.current_question_index || Math.floor(restoredMessages.length / 2));
       setIsStarted(true);
       setHasInProgressTest(false);
+
+      console.log('[FRONTEND] Messages state updated successfully');
+      console.log('========== RESUME FLOW END ==========\n');
     } catch (err: any) {
+      console.error('[FRONTEND] Resume error:', err);
       if (err.message?.includes('404')) {
         setError('진행 중인 테스트를 찾을 수 없습니다.');
         setHasInProgressTest(false);
@@ -321,22 +371,30 @@ export default function MbtiTestClient() {
           onScroll={handleScroll}
           className="h-96 overflow-y-auto p-4 space-y-4"
         >
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
+          {console.log('[RENDER] Rendering messages:', messages.length)}
+          {messages.map((msg, idx) => {
+            console.log(`[RENDER] Message ${idx}:`, msg);
+            console.log(`[RENDER] - role: ${msg.role}`);
+            console.log(`[RENDER] - content: "${msg.content}"`);
+            console.log(`[RENDER] - content length: ${msg.content?.length || 0}`);
+
+            return (
               <div
-                className={`max-w-[80%] px-4 py-3 rounded-2xl whitespace-pre-wrap ${
-                  msg.role === 'user'
-                    ? 'bg-purple-400 text-white rounded-br-sm'
-                    : 'bg-gray-100 text-gray-700 rounded-bl-sm'
-                }`}
+                key={idx}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {msg.content}
+                <div
+                  className={`max-w-[80%] px-4 py-3 rounded-2xl whitespace-pre-wrap ${
+                    msg.role === 'user'
+                      ? 'bg-purple-400 text-white rounded-br-sm'
+                      : 'bg-gray-100 text-gray-700 rounded-bl-sm'
+                  }`}
+                >
+                  {msg.content || '[내용 없음]'}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {isLoading && (
             <div className="flex justify-start">
               <div className="max-w-[80%] px-4 py-3 rounded-2xl bg-gray-100 text-gray-700 rounded-bl-sm">

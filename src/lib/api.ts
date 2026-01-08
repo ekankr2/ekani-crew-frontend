@@ -37,11 +37,18 @@ export async function apiFetch<T>(
     headers['Content-Type'] = 'application/json';
   }
 
-  const response = await fetch(url, {
-    ...options,
-    credentials: 'include', // 쿠키 포함
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      credentials: 'include', // 쿠키 포함
+      headers,
+    });
+  } catch (fetchError: any) {
+    console.error('Network Error:', fetchError);
+    console.error('Failed to connect to:', url);
+    throw new Error(`Network Error: Cannot connect to server at ${url}. ${fetchError.message}`);
+  }
 
   if (!response.ok) {
     const errorDetails = {
@@ -50,6 +57,15 @@ export async function apiFetch<T>(
       url: url,
     };
     console.error('API Error:', errorDetails);
+
+    // 응답 본문도 출력 (에러 메시지가 있을 수 있음)
+    try {
+      const errorBody = await response.text();
+      console.error('Error body:', errorBody);
+    } catch (e) {
+      console.error('Could not read error body');
+    }
+
     throw new Error(`API Error: ${response.statusText} (${response.status}) - ${endpoint}`);
   }
 
@@ -280,6 +296,7 @@ export async function getMbtiResult(sessionId: string): Promise<MbtiResultRespon
 export interface MbtiTestStatusResponse {
   status: 'in_progress' | 'no_test_found';
   session?: MbtiTestSession;
+  messages?: { role: 'user' | 'assistant'; content: string }[];
   next_question?: MbtiMessage;
 }
 
@@ -295,6 +312,7 @@ export async function getMbtiTestStatus(): Promise<MbtiTestStatusResponse> {
 export interface ResumeMbtiTestResponse {
   status: 'resumed';
   session: MbtiTestSession;
+  messages: { role: 'user' | 'assistant'; content: string }[];
   next_question: MbtiMessage;
 }
 

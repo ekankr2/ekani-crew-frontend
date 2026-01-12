@@ -28,7 +28,7 @@ export default function MatchingClient() {
   // MBTI 체크
   useEffect(() => {
     if (!loading && isLoggedIn && !profile?.mbti) {
-      router.push('/profile');
+      router.push('/mypage');
     }
   }, [loading, isLoggedIn, profile, router]);
 

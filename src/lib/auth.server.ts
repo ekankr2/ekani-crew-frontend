@@ -51,6 +51,6 @@ export async function requireAuth(): Promise<void> {
 
   const hasProfile = await checkProfileComplete();
   if (!hasProfile) {
-    redirect('/profile');
+    redirect('/mypage');
   }
 }

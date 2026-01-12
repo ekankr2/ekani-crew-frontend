@@ -199,21 +199,48 @@ export default function Home() {
 
         <div className="p-8">
           <p className="text-lg text-gray-700 text-center mb-8">
+            지루한 객관식은 이제 그만!<br />
             AI와 대화하며 알아보는 정확한 MBTI
           </p>
 
-          <div className="flex justify-center gap-8 mb-8 text-center">
-            <div>
-              <div className="text-3xl mb-2">💬</div>
-              <div className="text-sm text-gray-500">채팅형</div>
+          {/* 대화 예시 */}
+          <div className="bg-gray-50 rounded-2xl p-5 mb-6 space-y-4">
+            <div className="flex gap-3">
+              <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm">AI</div>
+              <div className="flex-1 bg-white rounded-2xl rounded-tl-none p-4 shadow-sm">
+                <p className="text-gray-700">"주말에 친구들과 약속이 있어요. 어떤 활동을 하고 싶으세요?"</p>
+              </div>
             </div>
-            <div>
-              <div className="text-3xl mb-2">24</div>
-              <div className="text-sm text-gray-500">질문</div>
+            <div className="flex gap-3 justify-end">
+              <div className="flex-1 bg-indigo-500 rounded-2xl rounded-tr-none p-4 text-white max-w-[80%]">
+                <p>"카페에서 조용히 이야기 나누고 싶어요. 시끄러운 곳은 별로..."</p>
+              </div>
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm">나</div>
             </div>
-            <div>
-              <div className="text-3xl mb-2">10분</div>
-              <div className="text-sm text-gray-500">소요</div>
+            <div className="flex gap-3">
+              <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm">AI</div>
+              <div className="flex-1 bg-white rounded-2xl rounded-tl-none p-4 shadow-sm">
+                <p className="text-gray-700">"그렇군요! 그럼 대화할 때 주로 어떤 주제를 선호하세요?"</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 특징 */}
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            <div className="bg-indigo-50 rounded-xl p-4 text-center">
+              <div className="text-2xl mb-1">💬</div>
+              <div className="text-xs text-gray-600 font-medium">대화형</div>
+              <div className="text-xs text-gray-400">자연스러운 채팅</div>
+            </div>
+            <div className="bg-indigo-50 rounded-xl p-4 text-center">
+              <div className="text-2xl mb-1">🎯</div>
+              <div className="text-xs text-gray-600 font-medium">맞춤 질문</div>
+              <div className="text-xs text-gray-400">답변 기반 AI 분석</div>
+            </div>
+            <div className="bg-indigo-50 rounded-xl p-4 text-center">
+              <div className="text-2xl mb-1">📊</div>
+              <div className="text-xs text-gray-600 font-medium">상세 결과</div>
+              <div className="text-xs text-gray-400">차원별 % 분석</div>
             </div>
           </div>
 

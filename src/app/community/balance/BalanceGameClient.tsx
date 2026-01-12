@@ -79,9 +79,10 @@ export default function BalanceGameClient() {
       </div>
 
       {/* Game List */}
-      {games.map((game) => (
-        <Link key={game.id} href={`/community/balance/${game.id}`}>
-          <div className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer">
+      <div className="space-y-4">
+        {games.map((game) => (
+          <Link key={game.id} href={`/community/balance/${game.id}`} className="block">
+            <div className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer">
             {/* Status Badge */}
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-gray-400">{game.week_of}</span>
@@ -133,9 +134,10 @@ export default function BalanceGameClient() {
             <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
               <span>💬 댓글 {game.comment_count}개</span>
             </div>
-          </div>
-        </Link>
-      ))}
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
